@@ -1,6 +1,9 @@
 package pubgo
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"time"
+)
 
 type StatusResponse struct {
 	Data StatusData `json:"data"`
@@ -53,18 +56,18 @@ type MatchResponse struct {
 		Type       string `json:"type"`
 		ID         string `json:"id"`
 		Attributes struct {
-			CreatedAt    string `json:"createdAt"`
-			Duration     int    `json:"duration"`
-			GameMode     string `json:"gameMode"`
-			MapName      string `json:"mapName"`
-			PatchVersion string `json:"patchVersion"`
-			ShardID      string `json:"shardId"`
-			Stats        string `json:"stats"`
-			Tags         string `json:"tags"`
-			TitleID      string `json:"titleId"`
-			Description  string `json:"description"`
-			Name         string `json:"name"`
-			URL          string `json:"URL"`
+			CreatedAt    time.Time `json:"createdAt"`
+			Duration     int       `json:"duration"`
+			GameMode     string    `json:"gameMode"`
+			MapName      string    `json:"mapName"`
+			PatchVersion string    `json:"patchVersion"`
+			ShardID      string    `json:"shardId"`
+			Stats        string    `json:"stats"`
+			Tags         string    `json:"tags"`
+			TitleID      string    `json:"titleId"`
+			Description  string    `json:"description"`
+			Name         string    `json:"name"`
+			URL          string    `json:"URL"`
 		} `json:"attributes"`
 		Relationships struct {
 			Assets struct {
@@ -92,46 +95,16 @@ type MatchResponse struct {
 type MatchParticipant struct {
 	typeIdPair
 	Attributes struct {
-		Actor   string `json:"actor"`
-		ShardId string `json:"shardId"`
-		Stats   struct {
-			DBNOs           int     `json:"DBNOs"`
-			Assists         int     `json:"assists"`
-			Boosts          int     `json:"boosts"`
-			DamageDealt     float32 `json:"damageDealt"`
-			DeathType       string  `json:"deathType"`
-			HeadshotKills   int     `json:"headshotKills"`
-			Heals           int     `json:"heals"`
-			KillPlace       int     `json:"killPlace"`
-			KillPoints      int     `json:"killPoints"`
-			KillPointsDelta int     `json:"killPointsDelta"`
-			KillStreaks     int     `json:"killStreaks"`
-			Kills           int     `json:"kills"`
-			LastKillPoints  int     `json:"lastKillPoints"`
-			LastWinPoints   int     `json:"lastWinPoints"`
-			LongestKill     int     `json:"longestKill"`
-			MostDamage      int     `json:"mostDamage"`
-			Name            string  `json:"name"`
-			PlayerID        string  `json:"playerId"`
-			Revives         int     `json:"revives"`
-			RideDistance    float32 `json:"rideDistance"`
-			RoadKills       int     `json:"roadKills"`
-			TeamKills       int     `json:"teamKills"`
-			TimeSurvived    int     `json:"timeSurvived"`
-			VehicleDestroys int     `json:"vehicleDestroys"`
-			WalkDistance    float32 `json:"walkDistance"`
-			WeaponsAcquired int     `json:"weaponsAcquired"`
-			WinPlace        int     `json:"winPlace"`
-			WinPoints       int     `json:"winPoints"`
-			WinPointsDelta  int     `json:"winPointsDelta"`
-		} `json:"stats"`
+		Actor   string     `json:"actor"`
+		ShardID string     `json:"shardId"`
+		Stats   MatchStats `json:"stats"`
 	} `json:"attributes"`
 }
 
 type MatchRoster struct {
 	typeIdPair
 	Attributes struct {
-		ShardId string `json:"shardId"`
+		ShardID string `json:"shardId"`
 		Stats   struct {
 			Rank   int `json:"rank"`
 			TeamID int `json:"teamId"`
@@ -151,11 +124,43 @@ type MatchRoster struct {
 type MatchAsset struct {
 	typeIdPair
 	Attributes struct {
-		URL         string `json:"URL"`
-		CreatedAt   string `json:"createdAt"`
-		Description string `json:"description"`
-		Name        string `json:"name"`
+		URL         string    `json:"URL"`
+		CreatedAt   time.Time `json:"createdAt"`
+		Description string    `json:"description"`
+		Name        string    `json:"name"`
 	} `json:"attributes"`
+}
+
+type MatchStats struct {
+	DBNOs           int     `json:"DBNOs"`
+	Assists         int     `json:"assists"`
+	Boosts          int     `json:"boosts"`
+	DamageDealt     float32 `json:"damageDealt"`
+	DeathType       string  `json:"deathType"`
+	HeadshotKills   int     `json:"headshotKills"`
+	Heals           int     `json:"heals"`
+	KillPlace       int     `json:"killPlace"`
+	KillPoints      int     `json:"killPoints"`
+	KillPointsDelta int     `json:"killPointsDelta"`
+	KillStreaks     int     `json:"killStreaks"`
+	Kills           int     `json:"kills"`
+	LastKillPoints  int     `json:"lastKillPoints"`
+	LastWinPoints   int     `json:"lastWinPoints"`
+	LongestKill     int     `json:"longestKill"`
+	MostDamage      int     `json:"mostDamage"`
+	Name            string  `json:"name"`
+	PlayerID        string  `json:"playerId"`
+	Revives         int     `json:"revives"`
+	RideDistance    float32 `json:"rideDistance"`
+	RoadKills       int     `json:"roadKills"`
+	TeamKills       int     `json:"teamKills"`
+	TimeSurvived    int     `json:"timeSurvived"`
+	VehicleDestroys int     `json:"vehicleDestroys"`
+	WalkDistance    float32 `json:"walkDistance"`
+	WeaponsAcquired int     `json:"weaponsAcquired"`
+	WinPlace        int     `json:"winPlace"`
+	WinPoints       int     `json:"winPoints"`
+	WinPointsDelta  int     `json:"winPointsDelta"`
 }
 
 type TelemetryResponse struct {
