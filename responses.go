@@ -5,30 +5,36 @@ import (
 	"time"
 )
 
+// StatusResponse is the response payload for the status end point
 type StatusResponse struct {
 	Data StatusData `json:"data"`
 }
 
+// StatusData contains all of the data returned in the StatusResponse
 type StatusData struct {
-	typeIdPair
+	typeIDPair
 	Attributes StatusAttributes `json:"attributes"`
 }
 
+// StatusAttributes contains all of the attributes returned in the StatusResponse
 type StatusAttributes struct {
 	Released string `json:"releasedAt"`
 	Version  string `json:"version"`
 }
 
+// PlayerResponse is the response payload for the player end point
 type PlayerResponse struct {
 	Data []PlayerResponseData `json:"data"`
 }
 
+// PlayerResponseData contains all of the data returned in the PlayerResponse
 type PlayerResponseData struct {
-	typeIdPair
+	typeIDPair
 	Attributes    PlayerAttributes `json:"attributes"`
 	Relationships Relationships    `json:"relationships"`
 }
 
+// PlayerAttributes contains all of the player attributes returned in the PlayerResponse
 type PlayerAttributes struct {
 	CreatedAt    string          `json:"createdAt"`
 	Name         string          `json:"name"`
@@ -39,18 +45,22 @@ type PlayerAttributes struct {
 	Updated      string          `json:"updatedAt"`
 }
 
+// Relationships contains all of the relationships returned in the PlayerResponse
 type Relationships struct {
 	Matches Matches `json:"matches"`
 }
 
+// Matches contains a slice of all the matches returned in the PlayerResponse
 type Matches struct {
 	Data []MatchData `json:"data"`
 }
 
+// MatchData contains all the match data returned in the PlayerResponse
 type MatchData struct {
-	typeIdPair
+	typeIDPair
 }
 
+// MatchResponse is the response payload for the match end point
 type MatchResponse struct {
 	Data struct {
 		Type       string `json:"type"`
@@ -71,10 +81,10 @@ type MatchResponse struct {
 		} `json:"attributes"`
 		Relationships struct {
 			Assets struct {
-				Data []typeIdPair `json:"data"`
+				Data []typeIDPair `json:"data"`
 			} `json:"assets"`
 			Rosters struct {
-				Data []typeIdPair `json:"data"`
+				Data []typeIDPair `json:"data"`
 			} `json:"rosters"`
 		} `json:"relationships"`
 		Links struct {
@@ -92,8 +102,9 @@ type MatchResponse struct {
 	Meta struct{} `json:"meta"`
 }
 
+// MatchParticipant contains all the participants returned in the MatchResponse
 type MatchParticipant struct {
-	typeIdPair
+	typeIDPair
 	Attributes struct {
 		Actor   string     `json:"actor"`
 		ShardID string     `json:"shardId"`
@@ -101,8 +112,9 @@ type MatchParticipant struct {
 	} `json:"attributes"`
 }
 
+// MatchRoster contains all the rosters returned in the MatchResponse
 type MatchRoster struct {
-	typeIdPair
+	typeIDPair
 	Attributes struct {
 		ShardIDn string `json:"shardId"`
 		Stats    struct {
@@ -113,7 +125,7 @@ type MatchRoster struct {
 	} `json:"attributes"`
 	Relationships struct {
 		Participants struct {
-			Data []typeIdPair
+			Data []typeIDPair
 		} `json:"participants"`
 		Team struct {
 			Data string `json:"data"`
@@ -121,8 +133,9 @@ type MatchRoster struct {
 	} `json:"relationships"`
 }
 
+// MatchAsset contains all the assets returned in the MatchResponse
 type MatchAsset struct {
-	typeIdPair
+	typeIDPair
 	Attributes struct {
 		URL         string    `json:"URL"`
 		CreatedAt   time.Time `json:"createdAt"`
@@ -131,6 +144,7 @@ type MatchAsset struct {
 	} `json:"attributes"`
 }
 
+// MatchStats are all the stats returned in the MatchResponse
 type MatchStats struct {
 	DBNOs           int     `json:"DBNOs"`
 	Assists         int     `json:"assists"`
@@ -163,34 +177,36 @@ type MatchStats struct {
 	WinPointsDelta  int     `json:"winPointsDelta"`
 }
 
+// TelemetryResponse is the response payload for the telemetry end point
 type TelemetryResponse struct {
-	Events                  []TelemetryEvent
-	PlayerLoginEvents       []*PlayerLoginEvent
-	PlayerCreateEvents      []*PlayerCreateEvent
-	PlayerPositionEvents    []*PlayerPositionEvent
-	PlayerAttackEvents      []*PlayerAttackEvent
-	ItemPickupEvents        []*ItemPickupEvent
-	ItemEquipEvent          []*ItemEquipEvent
-	ItemUnequipEvents       []*ItemUnequipEvent
-	VehicleRideEvents       []*VehicleRideEvent
-	MatchDefinitionEvents   []*MatchDefinitionEvent
-	MatchStartEvents        []*MatchStartEvent
-	GameStatePeriodicEvents []*GameStatePeriodicEvent
-	VehicleLeaveEvents      []*VehicleLeaveEvent
-	PlayerTakeDamageEvents  []*PlayerTakeDamageEvent
-	PlayerLogoutEvents      []*PlayerLogoutEvent
-	ItemAttachEvents        []*ItemAttachEvent
-	ItemDropEvents          []*ItemDropEvent
-	PlayerKillEvents        []*PlayerKillEvent
-	ItemDetachEvents        []*ItemDetachEvent
-	ItemUseEvents           []*ItemUseEvent
-	CarePackageSpawnEvents  []*CarePackageSpawnEvent
-	VehicleDestroyEvents    []*VehicleDestroyEvent
-	CarePackageLandEvents   []*CarePackageLandEvent
-	MatchEndEvents          []*MatchEndEvent
+	Events                  []TelemetryEvent          //All telemetry events in chronoligic order
+	PlayerLoginEvents       []*PlayerLoginEvent       //All PlayerLoginEvent's in chronoligic order
+	PlayerCreateEvents      []*PlayerCreateEvent      //All PlayerCreateEvent's in chronoligic order
+	PlayerPositionEvents    []*PlayerPositionEvent    //All PlayerPositionEvent's in chronoligic order
+	PlayerAttackEvents      []*PlayerAttackEvent      //All PlayerAttackEvent's in chronoligic order
+	ItemPickupEvents        []*ItemPickupEvent        //All ItemPickupEvent's in chronoligic order
+	ItemEquipEvent          []*ItemEquipEvent         //All ItemEquipEvent's in chronoligic order
+	ItemUnequipEvents       []*ItemUnequipEvent       //All ItemUnequipEvent's in chronoligic order
+	VehicleRideEvents       []*VehicleRideEvent       //All VehicleRideEvent's in chronoligic order
+	MatchDefinitionEvents   []*MatchDefinitionEvent   //All MatchDefinitionEvent's in chronoligic order
+	MatchStartEvents        []*MatchStartEvent        //All MatchStartEvent's in chronoligic order
+	GameStatePeriodicEvents []*GameStatePeriodicEvent //All GameStatePeriodicEvent's in chronoligic order
+	VehicleLeaveEvents      []*VehicleLeaveEvent      //All VehicleLeaveEvent's in chronoligic order
+	PlayerTakeDamageEvents  []*PlayerTakeDamageEvent  //All PlayerTakeDamageEvent's in chronoligic order
+	PlayerLogoutEvents      []*PlayerLogoutEvent      //All PlayerLogoutEvent's in chronoligic order
+	ItemAttachEvents        []*ItemAttachEvent        //All ItemAttachEvent's in chronoligic order
+	ItemDropEvents          []*ItemDropEvent          //All ItemDropEvent's in chronoligic order
+	PlayerKillEvents        []*PlayerKillEvent        //All PlayerKillEvent's in chronoligic order
+	ItemDetachEvents        []*ItemDetachEvent        //All ItemDetachEvent's in chronoligic order
+	ItemUseEvents           []*ItemUseEvent           //All ItemUseEvent's in chronoligic order
+	CarePackageSpawnEvents  []*CarePackageSpawnEvent  //All CarePackageSpawnEvent's in chronoligic order
+	VehicleDestroyEvents    []*VehicleDestroyEvent    //All VehicleDestroyEvent's in chronoligic order
+	CarePackageLandEvents   []*CarePackageLandEvent   //All CarePackageLandEvent's in chronoligic order
+	MatchEndEvents          []*MatchEndEvent          //All MatchEndEvent's in chronoligic order
 }
 
-type typeIdPair struct {
+// typeIDPair is a common pattern used throughout all responses
+type typeIDPair struct {
 	Type string `json:"type"`
 	ID   string `json:"id"`
 }

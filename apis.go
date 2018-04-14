@@ -10,33 +10,52 @@ import (
 )
 
 const (
-	base    = "https://api.playbattlegrounds.com"
-	shards  = "/shards/"
-	matches = "/matches/"
-	players = "/players"
-	status  = "/status"
+	base    = "https://api.playbattlegrounds.com" // base URL for making API calls
+	shards  = "/shards/"                          // shards path segment
+	matches = "/matches/"                         // matches end point
+	players = "/players"                          //players end point
+	status  = "/status"                           // status end point
 
-	XboxAsia         = "xbox-as"
-	XboxEurope       = "xbox-eu"
+	// XboxAsia - Xbox Asia Region
+	XboxAsia = "xbox-as"
+	// XboxEurope - Xbox Europe Region
+	XboxEurope = "xbox-eu"
+	// XboxNorthAmerica - Xbox North America Region
 	XboxNorthAmerica = "xbox-na"
-	XboxOceania      = "xbox-oc"
-	PCAsia           = "xbox-as"
-	PCEurope         = "xbox-eu"
-	PCNorthAmerica   = "xbox-na"
-	PCOceania        = "xbox-oc"
-	PCKoreaJapan     = "pc-krjp"
-	PCKorea          = "pc-kr"
-	PCJapan          = "pc-jp"
-	PCKAKAO          = "pc-kakao"
-	PCSouthEastAsia  = "pc-sea"
-	PCSouthAsia      = "pc-sa"
+	// XboxOceania - Xbox Oceana Region
+	XboxOceania = "xbox-oc"
+	// PCAsia - PC Asia  Region
+	PCAsia = "xbox-as"
+	// PCEurope - PC Europe Region
+	PCEurope = "xbox-eu"
+	// PCNorthAmerica - PC North America Region
+	PCNorthAmerica = "xbox-na"
+	// PCOceania - PC Oceania Region
+	PCOceania = "xbox-oc"
+	// PCKoreaJapan - PC Korea/Japan Region
+	PCKoreaJapan = "pc-krjp"
+	// PCKorea - PC Korea Region
+	PCKorea = "pc-kr"
+	// PCJapan - PC Japan Region
+	PCJapan = "pc-jp"
+	// PCKAKAO - PC KAKAO Region
+	PCKAKAO = "pc-kakao"
+	// PCSouthEastAsia - PC South East Asia Region
+	PCSouthEastAsia = "pc-sea"
+	// PCSouthAsia - PC South Asia Region
+	PCSouthAsia = "pc-sa"
 )
 
+// GetQueueSize returns the current size of the poller queue.
+// This is useful if implementing additional request limiting.
 func (s *Session) GetQueueSize() (size int) {
 	size = len(s.poller.queue)
 	return
 }
 
+// GetStatus retrieves status data from the PUBG servers and passes the StatusResponse into the given callback.
+// Upon retrieval of data the callback passed in is executed. Additionally the size of the
+// poller buffer is returned.
 func (s *Session) GetStatus(clbk func(StatusResponse, error)) (size int) {
 	req, _ := http.NewRequest("GET", base+status, nil)
 	s.poller.Request(req, func(res *http.Response, err error) {
@@ -52,6 +71,9 @@ func (s *Session) GetStatus(clbk func(StatusResponse, error)) (size int) {
 	return s.GetQueueSize()
 }
 
+// GetPlayer retrieves data for the specified player and passes the PlayerResponseData into the given callback.
+// Upon retrieval of data the callback passed in is executed. Additionally the size of the
+// poller buffer is returned.
 func (s *Session) GetPlayer(name string, clbk func(PlayerResponseData, error)) (size int) {
 	s.GetPlayers([]string{name}, func(pr PlayerResponse, err error) {
 		if len(pr.Data) > 0 {
@@ -61,6 +83,9 @@ func (s *Session) GetPlayer(name string, clbk func(PlayerResponseData, error)) (
 	return s.GetQueueSize()
 }
 
+// GetPlayers retrieves data for the passed names and passes the PlayerResponse into the given callback.
+// Upon retrieval of data the callback passed in is executed. Additionally the size of the
+// poller buffer is returned.
 func (s *Session) GetPlayers(names []string, clbk func(PlayerResponse, error)) (size int) {
 	query := strings.Replace(strings.Join(names, ","), " ", "%20", -1)
 	u, _ := url.ParseRequestURI(base + shards + s.region + players + "?filter[playerNames]=" + query)
@@ -80,6 +105,9 @@ func (s *Session) GetPlayers(names []string, clbk func(PlayerResponse, error)) (
 	return s.GetQueueSize()
 }
 
+// GetMatch retrieves the match data for a specified match id and passes the MatchResponse into the given callback.
+// Upon retrieval of data the callback passed in is executed. Additionally the size of the
+// poller buffer is returned.
 func (s *Session) GetMatch(id string, clbk func(MatchResponse, error)) (size int) {
 	req, _ := http.NewRequest("GET", base+shards+matches+id, nil)
 	req.Header.Set("Authorization", s.apiKey)
@@ -118,6 +146,9 @@ func (s *Session) GetMatch(id string, clbk func(MatchResponse, error)) (size int
 	return s.GetQueueSize()
 }
 
+// GetTelemetry retrieves the telemetry data at a specified url and passes the TelemetryResponse into the given callback.
+// Upon retrieval of data the callback passed in is executed. Additionally the size of the
+// poller buffer is returned.
 func (s *Session) GetTelemetry(url string, clbk func(TelemetryResponse, error)) (size int) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -144,6 +175,9 @@ func (s *Session) GetTelemetry(url string, clbk func(TelemetryResponse, error)) 
 	return s.GetQueueSize()
 }
 
+// ReadTelemetryFromFile parses json telemetry data from a given file
+// and returns a TelemetryResponse struct. It is more performant to cache
+// telemetry data for future use.
 func (s *Session) ReadTelemetryFromFile(path string) (tr TelemetryResponse, err error) {
 	var b []byte
 	b, err = ioutil.ReadFile(path)
@@ -153,6 +187,8 @@ func (s *Session) ReadTelemetryFromFile(path string) (tr TelemetryResponse, err 
 	return parseTelemetry(b)
 }
 
+// parseTelemetry reads the telemetry event type from the json
+// and passes it to the unmarshaller
 func parseTelemetry(b []byte) (tr TelemetryResponse, err error) {
 	var v []json.RawMessage
 	json.Unmarshal(b, &v)

@@ -6,6 +6,10 @@ import (
 	"io/ioutil"
 )
 
+// unmarshalEvent takes in the raw json and determines which event to unmarshal
+// the json into. Additionally, it adds a pointer to the event to some helper
+// slices to allow users to quickly parse specific events. Everything is kept
+// in chronological order.
 func (tr *TelemetryResponse) unmarshalEvent(js []byte, t string) {
 	switch t {
 	case playerLogin:
@@ -127,6 +131,9 @@ func (tr *TelemetryResponse) unmarshalEvent(js []byte, t string) {
 	return
 }
 
+// ToFile will save a TelemetryResponse to the file at a specified location.
+// These data are always static and so it makes sense to cache/save this somewhere
+// locally to prevent from having to request the large file multiple times
 func (tr *TelemetryResponse) ToFile(path string) (err error) {
 	var b []byte
 	b, err = json.Marshal(tr.Events)

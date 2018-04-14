@@ -61,7 +61,7 @@ func TestGetPlayers(t *testing.T) {
 }
 func TestGetMatch(t *testing.T) {
 	var id, player string
-	session.GetPlayers(players, func(pr pubgo.PlayerResponse, err error) {
+	size := session.GetPlayers(players, func(pr pubgo.PlayerResponse, err error) {
 		for _, prd := range pr.Data {
 			if len(prd.GetMatchIDs()) > 0 {
 				id = prd.GetMatchIDs()[0]
@@ -70,11 +70,14 @@ func TestGetMatch(t *testing.T) {
 			}
 		}
 	})
+	if size != 0 {
+		t.Errorf("expected a queue size of 0 but received %d", size)
+	}
 	if id == "" {
 		t.Errorf("no match ids for players %s", strings.Join(players, ","))
 		return
 	}
-	size := session.GetMatch(id, func(mr pubgo.MatchResponse, err error) {
+	size = session.GetMatch(id, func(mr pubgo.MatchResponse, err error) {
 		if mr.GetStatsByName()[player] == nil {
 			t.Errorf("expected player %s to be in match but was not found", player)
 		}
