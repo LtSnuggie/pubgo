@@ -10,7 +10,14 @@ func (p *PlayerResponse) GetPlayerData(name string) (prd PlayerResponseData) {
 	return
 }
 
-func (p *PlayerResponseData) GetMatches() (m []MatchData) {
-	m = p.Relationships.Matches.Data
+func (prd *PlayerResponseData) GetMatches() (m []MatchData) {
+	m = prd.Relationships.Matches.Data
 	return
+}
+
+func (prd *PlayerResponseData) GetMatchIDs() (ids []string) {
+	for _, d := range prd.Relationships.Matches.Data {
+		ids = append(ids, d.ID)
+	}
+	return ids
 }

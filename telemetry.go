@@ -1,7 +1,9 @@
 package pubgo
 
 import (
+	"bytes"
 	"encoding/json"
+	"io/ioutil"
 )
 
 func (tr *TelemetryResponse) unmarshalEvent(js []byte, t string) {
@@ -122,5 +124,20 @@ func (tr *TelemetryResponse) unmarshalEvent(js []byte, t string) {
 		tr.Events = append(tr.Events, v)
 		tr.MatchEndEvents = append(tr.MatchEndEvents, &v)
 	}
+	return
+}
+
+func (tr *TelemetryResponse) ToFile(path string) (err error) {
+	var b []byte
+	b, err = json.Marshal(tr.Events)
+	if err != nil {
+		return
+	}
+	var pretty bytes.Buffer
+	err = json.Indent(&pretty, b, "", "\t")
+	if err != nil {
+		return
+	}
+	err = ioutil.WriteFile(path, pretty.Bytes(), 0644)
 	return
 }

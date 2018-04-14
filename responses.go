@@ -104,8 +104,8 @@ type MatchParticipant struct {
 type MatchRoster struct {
 	typeIdPair
 	Attributes struct {
-		ShardID string `json:"shardId"`
-		Stats   struct {
+		ShardIDn string `json:"shardId"`
+		Stats    struct {
 			Rank   int `json:"rank"`
 			TeamID int `json:"teamId"`
 		} `json:"stats"`
