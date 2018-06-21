@@ -1,9 +1,12 @@
 package pubgo
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
+	"os"
+	"strings"
 )
 
 // unmarshalEvent takes in the raw json and determines which event to unmarshal
@@ -11,7 +14,7 @@ import (
 // slices to allow users to quickly parse specific events. Everything is kept
 // in chronological order.
 func (tr *TelemetryResponse) unmarshalEvent(js []byte, t string) {
-	switch t {
+	switch strings.ToLower(t) {
 	case playerLogin:
 		v := PlayerLoginEvent{}
 		json.Unmarshal(js, &v)
@@ -145,6 +148,21 @@ func (tr *TelemetryResponse) ToFile(path string) (err error) {
 	if err != nil {
 		return
 	}
-	err = ioutil.WriteFile(path, pretty.Bytes(), 0644)
+	f, err := os.Create(path)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	w := bufio.NewWriter(f)
+	_, err = w.Write(pretty.Bytes())
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	pretty.Reset()
+	err = w.Flush()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	f.Close()
 	return
 }

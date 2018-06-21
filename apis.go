@@ -15,6 +15,7 @@ const (
 	matches = "/matches/"                         // matches end point
 	players = "/players"                          //players end point
 	status  = "/status"                           // status end point
+	seasons = "/seasons"                          // seasons end point
 
 	// XboxAsia - Xbox Asia Region
 	XboxAsia = "xbox-as"
@@ -25,13 +26,13 @@ const (
 	// XboxOceania - Xbox Oceana Region
 	XboxOceania = "xbox-oc"
 	// PCAsia - PC Asia  Region
-	PCAsia = "xbox-as"
+	PCAsia = "pc-as"
 	// PCEurope - PC Europe Region
-	PCEurope = "xbox-eu"
+	PCEurope = "pc-eu"
 	// PCNorthAmerica - PC North America Region
-	PCNorthAmerica = "xbox-na"
+	PCNorthAmerica = "pc-na"
 	// PCOceania - PC Oceania Region
-	PCOceania = "xbox-oc"
+	PCOceania = "pc-oc"
 	// PCKoreaJapan - PC Korea/Japan Region
 	PCKoreaJapan = "pc-krjp"
 	// PCKorea - PC Korea Region
@@ -62,6 +63,7 @@ func (s *Session) GetStatus(clbk func(StatusResponse, error)) (size int) {
 		var sr StatusResponse
 		if err != nil {
 			clbk(sr, err)
+			return
 		}
 		var buffer bytes.Buffer
 		buffer.ReadFrom(res.Body)
@@ -74,8 +76,8 @@ func (s *Session) GetStatus(clbk func(StatusResponse, error)) (size int) {
 // GetPlayer retrieves data for the specified player and passes the PlayerResponseData into the given callback.
 // Upon retrieval of data the callback passed in is executed. Additionally the size of the
 // poller buffer is returned.
-func (s *Session) GetPlayer(name string, clbk func(PlayerResponseData, error)) (size int) {
-	s.GetPlayers([]string{name}, func(pr PlayerResponse, err error) {
+func (s *Session) GetPlayer(id, shard string, clbk func(PlayerResponseData, error)) (size int) {
+	s.GetPlayers([]string{id}, shard, func(pr PlayerResponse, err error) {
 		if len(pr.Data) > 0 {
 			clbk(pr.Data[0], err)
 		}
@@ -86,9 +88,17 @@ func (s *Session) GetPlayer(name string, clbk func(PlayerResponseData, error)) (
 // GetPlayers retrieves data for the passed names and passes the PlayerResponse into the given callback.
 // Upon retrieval of data the callback passed in is executed. Additionally the size of the
 // poller buffer is returned.
-func (s *Session) GetPlayers(names []string, clbk func(PlayerResponse, error)) (size int) {
-	query := strings.Replace(strings.Join(names, ","), " ", "%20", -1)
-	u, _ := url.ParseRequestURI(base + shards + s.region + players + "?filter[playerNames]=" + query)
+func (s *Session) GetPlayers(ids []string, shard string, clbk func(PlayerResponse, error)) (size int) {
+	return s.getPlayersByFilter(ids, shard, "playerIds", clbk)
+}
+
+func (s *Session) GetPlayersByName(names []string, shard string, clbk func(PlayerResponse, error)) (size int) {
+	return s.getPlayersByFilter(names, shard, "playerNames", clbk)
+}
+
+func (s *Session) getPlayersByFilter(keys []string, shard, filter string, clbk func(PlayerResponse, error)) (size int) {
+	query := strings.Replace(strings.Join(keys, ","), " ", "%20", -1)
+	u, _ := url.ParseRequestURI(base + shards + shard + players + "?filter[" + filter + "]=" + query)
 	req, _ := http.NewRequest("GET", u.String(), nil)
 	req.Header.Set("Authorization", s.apiKey)
 	req.Header.Set("Accept", "application/vnd.api+json")
@@ -96,6 +106,7 @@ func (s *Session) GetPlayers(names []string, clbk func(PlayerResponse, error)) (
 		var pr PlayerResponse
 		if err != nil {
 			clbk(pr, err)
+			return
 		}
 		var buffer bytes.Buffer
 		buffer.ReadFrom(res.Body)
@@ -105,10 +116,48 @@ func (s *Session) GetPlayers(names []string, clbk func(PlayerResponse, error)) (
 	return s.GetQueueSize()
 }
 
+func (s *Session) GetSeasons(shard string, clbk func(SeasonsResponse, error)) (size int) {
+	req, _ := http.NewRequest("GET", base+shards+shard+seasons, nil)
+	req.Header.Set("Authorization", s.apiKey)
+	req.Header.Set("Accept", "application/vnd.api+json")
+	s.poller.Request(req, func(res *http.Response, err error) {
+		var sr SeasonsResponse
+		if err != nil {
+			clbk(sr, err)
+			return
+		}
+		var buffer bytes.Buffer
+		buffer.ReadFrom(res.Body)
+		err = json.Unmarshal(buffer.Bytes(), &sr)
+		clbk(sr, err)
+	})
+	return s.GetQueueSize()
+}
+
+func (s *Session) GetSeasonStats(playerid, shard, season string, clbk func(PlayerSeasonResponse, error)) (size int) {
+	uri := base + shards + shard + players + "/" + playerid + seasons + "/" + season
+	req, _ := http.NewRequest("GET", uri, nil)
+	req.Header.Set("Authorization", s.apiKey)
+	req.Header.Set("Accept", "application/vnd.api+json")
+	s.poller.Request(req, func(res *http.Response, err error) {
+		var psr PlayerSeasonResponse
+		if err != nil {
+			clbk(psr, err)
+			return
+		}
+		var buffer bytes.Buffer
+		buffer.ReadFrom(res.Body)
+		err = json.Unmarshal(buffer.Bytes(), &psr)
+		clbk(psr, err)
+	})
+	return s.GetQueueSize()
+}
+
 // GetMatch retrieves the match data for a specified match id and passes the MatchResponse into the given callback.
 // Upon retrieval of data the callback passed in is executed. Additionally the size of the
 // poller buffer is returned.
 func (s *Session) GetMatch(id string, clbk func(MatchResponse, error)) (size int) {
+	//TODO: Verify this is the correct URI
 	req, _ := http.NewRequest("GET", base+shards+matches+id, nil)
 	req.Header.Set("Authorization", s.apiKey)
 	req.Header.Set("Accept", "application/vnd.api+json")
@@ -116,6 +165,7 @@ func (s *Session) GetMatch(id string, clbk func(MatchResponse, error)) (size int
 		var mr MatchResponse
 		if err != nil {
 			clbk(mr, err)
+			return
 		}
 		var buffer bytes.Buffer
 		buffer.ReadFrom(res.Body)
@@ -149,7 +199,7 @@ func (s *Session) GetMatch(id string, clbk func(MatchResponse, error)) (size int
 // GetTelemetry retrieves the telemetry data at a specified url and passes the TelemetryResponse into the given callback.
 // Upon retrieval of data the callback passed in is executed. Additionally the size of the
 // poller buffer is returned.
-func (s *Session) GetTelemetry(url string, clbk func(TelemetryResponse, error)) (size int) {
+func (s *Session) GetTelemetry(url string, clbk func(TelemetryResponse, string, error)) (size int) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return
@@ -158,19 +208,13 @@ func (s *Session) GetTelemetry(url string, clbk func(TelemetryResponse, error)) 
 	req.Header.Set("Accept", "application/vnd.api+json")
 	s.poller.Request(req, func(res *http.Response, err error) {
 		if err != nil {
-			clbk(TelemetryResponse{}, err)
+			clbk(TelemetryResponse{}, url, err)
 			return
 		}
 		var buffer bytes.Buffer
-		// var pretty bytes.Buffer
 		buffer.ReadFrom(res.Body)
-		// data := fmt.Sprint(string(buffer.Bytes()))
-		// err := json.Indent(&pretty, buffer.Bytes(), "", "\t")
-		// if err != nil {
-		// 	fmt.Println(err.Error())
-		// }
-		// ioutil.WriteFile("tele.js", pretty.Bytes(), 0777)
-		clbk(parseTelemetry(buffer.Bytes()))
+		t, err := parseTelemetry(buffer.Bytes())
+		clbk(t, url, err)
 	})
 	return s.GetQueueSize()
 }
@@ -178,7 +222,7 @@ func (s *Session) GetTelemetry(url string, clbk func(TelemetryResponse, error)) 
 // ReadTelemetryFromFile parses json telemetry data from a given file
 // and returns a TelemetryResponse struct. It is more performant to cache
 // telemetry data for future use.
-func (s *Session) ReadTelemetryFromFile(path string) (tr TelemetryResponse, err error) {
+func ReadTelemetryFromFile(path string) (tr TelemetryResponse, err error) {
 	var b []byte
 	b, err = ioutil.ReadFile(path)
 	if err != nil {

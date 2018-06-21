@@ -27,3 +27,7 @@ func (mr *MatchResponse) GetStatsByWinRank() (s map[int][]*MatchStats) {
 	}
 	return
 }
+
+func (mr *MatchResponse) GetMatchID() (id string) {
+	return mr.Data.ID
+}

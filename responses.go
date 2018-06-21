@@ -36,13 +36,13 @@ type PlayerResponseData struct {
 
 // PlayerAttributes contains all of the player attributes returned in the PlayerResponse
 type PlayerAttributes struct {
-	CreatedAt    string          `json:"createdAt"`
+	// CreatedAt    string          `json:"createdAt"`
 	Name         string          `json:"name"`
 	PatchVersion string          `json:"patchVersion"`
 	ShardID      string          `json:"shardId"`
 	Stats        json.RawMessage `json:"stats"`
 	TitleID      string          `json:"titleId"`
-	Updated      string          `json:"updatedAt"`
+	// Updated      string          `json:"updatedAt"`
 }
 
 // Relationships contains all of the relationships returned in the PlayerResponse
@@ -58,6 +58,108 @@ type Matches struct {
 // MatchData contains all the match data returned in the PlayerResponse
 type MatchData struct {
 	typeIDPair
+}
+
+type SeasonsResponse struct {
+	Data  []SeasonsResponseData `json:"data"`
+	Links struct {
+		Self string `json:"self"`
+	} `json:"links"`
+	Meta struct{} `json:"meta"`
+}
+
+type SeasonsResponseData struct {
+	Type       string            `json:"type"`
+	ID         string            `json:"id"`
+	Attributes SeasonsAttributes `json:"attributes"`
+}
+
+type SeasonsAttributes struct {
+	IsCurrentSeason bool `json:"isCurrentSeason"`
+	IsOffseason     bool `json:"isOffseason"`
+}
+
+type PlayerSeasonResponse struct {
+	Data  PlayerSeasonData `json:"data"`
+	Links struct {
+		Self string `json:"self"`
+	} `json:"links"`
+	Meta struct{} `json:"meta"`
+}
+
+type PlayerSeasonData struct {
+	Type          string                    `json:"type"`
+	Attributes    PlayerSeasonAttributes    `json:"attributes"`
+	Relationships PlayerSeasonRelationships `json:"relationships"`
+}
+
+type PlayerSeasonAttributes struct {
+	GameModeStats struct {
+		DuoTPP   PlayerSeasonGameModeStats `json:"duo"`
+		DuoFPP   PlayerSeasonGameModeStats `json:"duo-fpp"`
+		SoloTPP  PlayerSeasonGameModeStats `json:"solo"`
+		SoloFPP  PlayerSeasonGameModeStats `json:"solo-fpp"`
+		SquadTPP PlayerSeasonGameModeStats `json:"squad"`
+		SquadFPP PlayerSeasonGameModeStats `json:"squad-fpp"`
+	} `json:"gameModeStats"`
+}
+type PlayerSeasonRelationships struct {
+	MatchesSquadFPP struct {
+		Data []typeIDPair `json:"data"`
+	} `json:"matchesSquadFPP"`
+	MatchesSquadTPP struct {
+		Data []typeIDPair `json:"data"`
+	} `json:"matchesSquadTPP"`
+	MatchesSoloFPP struct {
+		Data []typeIDPair `json:"data"`
+	} `json:"matchesSoloFPP"`
+	MatchesSoloTPP struct {
+		Data []typeIDPair `json:"data"`
+	} `json:"matchesSoloTPP"`
+	MatchesDuoFPP struct {
+		Data []typeIDPair `json:"data"`
+	} `json:"matchesDuoFPP"`
+	MatchesDuoTPP struct {
+		Data []typeIDPair `json:"data"`
+	} `json:"matchesDuoTPP"`
+	Season struct {
+		Data typeIDPair `json:"data"`
+	} `json:"season"`
+	Player struct {
+		Data typeIDPair `json:"data"`
+	} `json:"player"`
+}
+type PlayerSeasonGameModeStats struct {
+	Assists             int     `json:"assists"`
+	Boosts              int     `json:"boosts"`
+	DBNOs               int     `json:"dBNOs"`
+	DailyKills          int     `json:"dailyKills"`
+	DamageDealt         float32 `json:"damageDealt"`
+	Days                int     `json:"days"`
+	HeadshotKills       int     `json:"headshotKills"`
+	Heals               int     `json:"heals"`
+	KillPoints          float32 `json:"killPoints"`
+	Kills               int     `json:"kills"`
+	LongestKill         float32 `json:"longestKill"`
+	LongestTimeSurvived float32 `json:"longestTimeSurvived"`
+	Losses              int     `json:"losses"`
+	MaxKillStreaks      int     `json:"maxKillStreaks"`
+	MostSurvivalTime    float32 `json:"mostSurvivalTime"`
+	Revives             int     `json:"revives"`
+	RideDistance        float32 `json:"rideDistance"`
+	RoadKills           int     `json:"roadKills"`
+	RoundMostKills      int     `json:"roundMostKills"`
+	RoundsPlayed        int     `json:"roundsPlayed"`
+	Suicides            int     `json:"suicides"`
+	TeamKills           int     `json:"teamKills"`
+	TimeSurvived        float32 `json:"timeSurvived"`
+	Top10s              int     `json:"top10s"`
+	VehicleDestroys     int     `json:"vehicleDestroys"`
+	WalkDistance        float32 `json:"walkDistance"`
+	WeaponsAcquired     int     `json:"weaponsAcquired"`
+	WeeklyKills         int     `json:"weeklyKills"`
+	WinPoints           float32 `json:"winPoints"`
+	Wins                int     `json:"wins"`
 }
 
 // MatchResponse is the response payload for the match end point
@@ -160,7 +262,7 @@ type MatchStats struct {
 	Kills           int     `json:"kills"`
 	LastKillPoints  int     `json:"lastKillPoints"`
 	LastWinPoints   int     `json:"lastWinPoints"`
-	LongestKill     int     `json:"longestKill"`
+	LongestKill     float32 `json:"longestKill"`
 	MostDamage      int     `json:"mostDamage"`
 	Name            string  `json:"name"`
 	PlayerID        string  `json:"playerId"`
@@ -168,7 +270,7 @@ type MatchStats struct {
 	RideDistance    float32 `json:"rideDistance"`
 	RoadKills       int     `json:"roadKills"`
 	TeamKills       int     `json:"teamKills"`
-	TimeSurvived    int     `json:"timeSurvived"`
+	TimeSurvived    float32 `json:"timeSurvived"`
 	VehicleDestroys int     `json:"vehicleDestroys"`
 	WalkDistance    float32 `json:"walkDistance"`
 	WeaponsAcquired int     `json:"weaponsAcquired"`

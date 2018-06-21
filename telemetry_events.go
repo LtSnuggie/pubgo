@@ -3,29 +3,29 @@ package pubgo
 import "time"
 
 const (
-	playerLogin       = "LogPlayerLogin"
-	playerCreate      = "LogPlayerCreate"
-	playerPosition    = "LogPlayerPosition"
-	playerAttack      = "LogPlayerAttack"
-	itemPickup        = "LogItemPickup"
-	itemEquip         = "LogItemEquip"
-	itemUnequip       = "LogItemUnequip"
-	vehicleRide       = "LogVehicleRide"
-	matchDefinition   = "LogMatchDefinition"
-	matchStart        = "LogMatchStart"
-	gameStatePeriodic = "LogGameStatePeriodic"
-	vehicleLeave      = "LogVehicleLeave"
-	playerTakeDamage  = "LogPlayerTakeDamage"
-	playerLogout      = "LogPlayerLogout"
-	itemAttach        = "LogItemAttach"
-	itemDrop          = "LogItemDrop"
-	playerKill        = "LogPlayerKill"
-	itemDetach        = "LogItemDetach"
-	itemUse           = "LogItemUse"
-	carePackageSpawn  = "LogCarePackageSpawn"
-	vehicleDestroy    = "LogVehicleDestroy"
-	carePackageLand   = "LogCarePackageLand"
-	matchEnd          = "LogMatchEnd"
+	playerLogin       = "logplayerlogin"
+	playerCreate      = "logplayercreate"
+	playerPosition    = "logplayerposition"
+	playerAttack      = "logplayerattack"
+	itemPickup        = "logitempickup"
+	itemEquip         = "logitemequip"
+	itemUnequip       = "logitemunequip"
+	vehicleRide       = "logvehicleride"
+	matchDefinition   = "logmatchdefinition"
+	matchStart        = "logmatchstart"
+	gameStatePeriodic = "loggamestateperiodic"
+	vehicleLeave      = "logvehicleleave"
+	playerTakeDamage  = "logplayertakedamage"
+	playerLogout      = "logplayerlogout"
+	itemAttach        = "logitemattach"
+	itemDrop          = "logitemdrop"
+	playerKill        = "logplayerkill"
+	itemDetach        = "logitemdetach"
+	itemUse           = "logitemuse"
+	carePackageSpawn  = "logcarepackagespawn"
+	vehicleDestroy    = "logvehicledestroy"
+	carePackageLand   = "logcarepackageland"
+	matchEnd          = "logmatchend"
 )
 
 // TelemetryEvent is an interface for TelemetryEvent's.
@@ -39,7 +39,7 @@ type TelemetryEvent interface {
 // Base is the base of all telemetery event types.
 // This information will always be returned.
 type Base struct {
-	Version   int       `json:"_V"`
+	// Version   int       `json:"_V"`
 	Timestamp time.Time `json:"_D"`
 	Type      string    `json:"_T"`
 	Common    Common    `json:"Common"`
@@ -57,7 +57,7 @@ func (b Base) GetTimestamp() time.Time {
 
 // GetVersion returns the version of the event.
 func (b Base) GetVersion() int {
-	return b.Version
+	return 0
 }
 
 // GetCommon returns the common object of the event.
@@ -68,9 +68,9 @@ func (b Base) GetCommon() Common {
 // PlayerLoginEvent contains data from the player loging in
 type PlayerLoginEvent struct {
 	Base
-	Result       bool   `json:"Result"`
-	ErrorMessage string `json:"ErrorMessage"`
-	AccountID    string `json:"AccountId"`
+	// Result bool `json:"Result"`
+	// ErrorMessage string `json:"ErrorMessage"`
+	AccountID string `json:"AccountId"`
 }
 
 // PlayerCreateEvent contains data from the player being created on the server

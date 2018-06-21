@@ -14,7 +14,6 @@ type poller struct {
 	*sync.Mutex
 	queue  []request
 	limit  int
-	count  int
 	client *http.Client
 }
 
@@ -28,7 +27,6 @@ func newPoller(client *http.Client, limit int) *poller {
 		&sync.Mutex{},
 		make([]request, 0),
 		limit,
-		0,
 		client,
 	}
 }
@@ -38,41 +36,58 @@ func (p *poller) Request(req *http.Request, clbk func(*http.Response, error)) {
 		req,
 		clbk,
 	}
-	p.Lock()
-	defer p.Unlock()
-	if p.count < p.limit {
-		if !p.exec(r) {
-			p.queue = append(p.queue, r)
-			go func() {
-				time.Sleep(60 * time.Second)
-				p.decrement()
-			}()
-		}
-	} else {
+	if len(p.queue) > 0 {
+		p.Lock()
 		p.queue = append(p.queue, r)
+		p.Unlock()
+		go func() {
+			time.Sleep(60 * time.Second)
+			p.poll()
+		}()
+	} else {
+		p.exec(r)
 	}
 }
 
-func (p *poller) exec(r request) (ok bool) {
-	p.count++
+func (p *poller) exec(r request) (remove bool) {
 	res, err := p.client.Do(r.req)
-	if res.StatusCode != limitReached {
-		r.clbk(res, err)
-		go func() {
-			time.Sleep(60 * time.Second)
-			p.decrement()
-		}()
-		ok = true
+	remove = true
+	if err == nil {
+		switch res.StatusCode {
+		case 200:
+		case 401:
+			err = NewInvalidKeyError(r.req.URL.String())
+		case 404:
+			err = NewNotFoundError(r.req.URL.String())
+		case 415:
+			err = NewIncorrectContentTypeError(r.req.URL.String())
+		case 429:
+			err = NewTooManyRequestsError(r.req.URL.String())
+			// Hit the limit, put this request back in queue - Should be end?
+			p.Lock()
+			p.queue = append(p.queue, r)
+			p.Unlock()
+		default:
+			err = NewUnhandledStatusCodeError(r.req.URL.String(), res.Status)
+		}
+	} else {
+		p.Lock()
+		p.queue = append(p.queue, r)
+		p.Unlock()
 	}
+	r.clbk(res, err)
+	go func() {
+		time.Sleep(60 * time.Second)
+		p.poll()
+	}()
 	return
 }
 
-func (p *poller) decrement() {
+func (p *poller) poll() {
 	p.Lock()
 	defer p.Unlock()
-	p.count--
 	if len(p.queue) > 0 {
-		p.exec(p.queue[0])
+		go p.exec(p.queue[0])
 		p.queue = p.queue[1:]
 	}
 }

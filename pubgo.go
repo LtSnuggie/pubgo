@@ -23,3 +23,20 @@ func New(key string, rateLimit int) (s *Session, err error) {
 	}
 	return
 }
+
+func GetShards() (shards []string) {
+	shards = append(shards, XboxNorthAmerica)
+	shards = append(shards, XboxOceania)
+	shards = append(shards, XboxEurope)
+	shards = append(shards, XboxAsia)
+	shards = append(shards, PCAsia)
+	shards = append(shards, PCKAKAO)
+	shards = append(shards, PCKorea)
+	shards = append(shards, PCJapan)
+	shards = append(shards, PCEurope)
+	shards = append(shards, PCOceania)
+	shards = append(shards, PCSouthAsia)
+	shards = append(shards, PCKoreaJapan)
+	shards = append(shards, PCNorthAmerica)
+	return
+}
