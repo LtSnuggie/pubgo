@@ -85,6 +85,20 @@ func TestGetMatch(t *testing.T) {
 	}
 }
 
+func TestGetSamples(t *testing.T) {
+	size := session.GetSampleMatches(PCNorthAmerica, func(sr SamplesResponse, err error) {
+		if err != nil {
+			t.Errorf("API returned error: %s", err.Error())
+		}
+		if len(sr.Data.GetMatches()) == 0 {
+			t.Errorf("Expected samples in SampleResponse but received 0")
+		}
+	})
+	if size != 0 {
+		t.Errorf("expected a queue size of 0 but received %d", size)
+	}
+}
+
 func TestGetSeasons(t *testing.T)            {}
 func TestGetTelemetry(t *testing.T)          {}
 func TestReadTelemetryFromFile(t *testing.T) {}

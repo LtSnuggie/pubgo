@@ -22,6 +22,23 @@ type StatusAttributes struct {
 	Version  string `json:"version"`
 }
 
+// SamplesResponse is the response payload for the samples endpoint
+type SamplesResponse struct {
+	Data SamplesResponseData `json:"data"`
+}
+
+type SamplesResponseData struct {
+	typeIDPair
+	Attributes    SamplesAttributes `json:"attributes"`
+	Relationships Relationships     `json:"relationships"`
+}
+
+type SamplesAttributes struct {
+	CreatedAt time.Time `json:"createdAt"`
+	ShardID   string    `json:"shardId"`
+	TitleID   string    `json:"titleId"`
+}
+
 // PlayerResponse is the response payload for the player end point
 type PlayerResponse struct {
 	Data []PlayerResponseData `json:"data"`
