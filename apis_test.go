@@ -90,7 +90,7 @@ func TestGetSamples(t *testing.T) {
 		if err != nil {
 			t.Errorf("API returned error: %s", err.Error())
 		}
-		if len(sr.Data.GetMatches()) == 0 {
+		if len(sr.GetMatches()) == 0 {
 			t.Errorf("Expected samples in SampleResponse but received 0")
 		}
 	})
