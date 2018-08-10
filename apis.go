@@ -45,6 +45,8 @@ const (
 	PCSouthEastAsia = "pc-sea"
 	// PCSouthAsia - PC South Asia Region
 	PCSouthAsia = "pc-sa"
+	// PCTournament - PC Tournament Shard
+	PCTournament = "pc-tournament"
 )
 
 // GetQueueSize returns the current size of the poller queue.
