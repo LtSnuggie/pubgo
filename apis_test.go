@@ -1,4 +1,4 @@
-package pubgo_test
+package pubgo
 
 import (
 	"encoding/json"
@@ -6,8 +6,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-
-	"github.com/ltsnuggie/pubgo"
 )
 
 type Conf struct {
@@ -19,8 +17,8 @@ const (
 	expectedAPI = "v9.11.2"
 )
 
-var session *pubgo.Session
-var players = []string{"Lt Snuggie", "DinnerPlates7", "WARISTHEANSWER0"}
+var session *Session
+var testPlayers = []string{"badshroud"}
 
 func TestMain(m *testing.M) {
 	setup()
@@ -30,7 +28,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestGetStatus(t *testing.T) {
-	size := session.GetStatus(func(sr pubgo.StatusResponse, err error) {
+	size := session.GetStatus(func(sr StatusResponse, err error) {
 		// if sr.Data.Attributes.Version != expectedAPI {
 		// 	t.Errorf("expected version %s but received %s", expectedAPI, sr.Data.Attributes.Version)
 		// }
@@ -40,18 +38,18 @@ func TestGetStatus(t *testing.T) {
 	}
 }
 func TestGetPlayer(t *testing.T) {
-	size := session.GetPlayer(players[0], "xbox-na", func(prd pubgo.PlayerResponseData, err error) {
-		if prd.Attributes.Name != players[0] {
-			t.Errorf("expected a player name of %s but received %s", players[0], prd.Attributes.Name)
+	size := session.GetPlayer(testPlayers[0], PCNorthAmerica, func(prd PlayerResponseData, err error) {
+		if prd.Attributes.Name != testPlayers[0] {
+			t.Errorf("expected a player name of %s but received %s", testPlayers[0], prd.Attributes.Name)
 		}
 	})
 	if size != 0 {
 		t.Errorf("expected a queue size of 0 but received %d", size)
 	}
 }
-func TestGetPlayers(t *testing.T) {
-	size := session.GetPlayers(players, "xbox-na", func(pr pubgo.PlayerResponse, err error) {
-		if len(players) != len(pr.Data) {
+func TestGetPlayersByName(t *testing.T) {
+	size := session.GetPlayersByName(testPlayers, PCNorthAmerica, func(pr PlayerResponse, err error) {
+		if len(testPlayers) != len(pr.Data) {
 			t.Errorf("expected %d players in PlayerResponse but received %d", len(players), len(pr.Data))
 		}
 	})
@@ -61,7 +59,7 @@ func TestGetPlayers(t *testing.T) {
 }
 func TestGetMatch(t *testing.T) {
 	var id, player string
-	size := session.GetPlayers(players, "xbox-na", func(pr pubgo.PlayerResponse, err error) {
+	size := session.GetPlayersByName(testPlayers, PCNorthAmerica, func(pr PlayerResponse, err error) {
 		for _, prd := range pr.Data {
 			if len(prd.GetMatchIDs()) > 0 {
 				id = prd.GetMatchIDs()[0]
@@ -74,10 +72,10 @@ func TestGetMatch(t *testing.T) {
 		t.Errorf("expected a queue size of 0 but received %d", size)
 	}
 	if id == "" {
-		t.Errorf("no match ids for players %s", strings.Join(players, ","))
+		t.Errorf("no match ids for players %s", strings.Join(testPlayers, ","))
 		return
 	}
-	size = session.GetMatch(id, func(mr pubgo.MatchResponse, err error) {
+	size = session.GetMatch(id, PCNorthAmerica, func(mr MatchResponse, err error) {
 		if mr.GetStatsByName()[player] == nil {
 			t.Errorf("expected player %s to be in match but was not found", player)
 		}
@@ -87,13 +85,21 @@ func TestGetMatch(t *testing.T) {
 	}
 }
 
-func TestGetSeasons(t *testing.T) {}
-func TestGetSeasonStatsByID(t *testing.T) {
-	session.GetSeasonStatsByID("account.5b8adc876dd64ee497afebc9f84d1749", "xbox-na", "division.bro.official.2018-05", func(arg1 pubgo.PlayerSeasonResponse, arg2 error) {
-
+func TestGetSamples(t *testing.T) {
+	size := session.GetSampleMatches(PCNorthAmerica, func(sr SamplesResponse, err error) {
+		if err != nil {
+			t.Errorf("API returned error: %s", err.Error())
+		}
+		if len(sr.GetMatches()) == 0 {
+			t.Errorf("Expected samples in SampleResponse but received 0")
+		}
 	})
+	if size != 0 {
+		t.Errorf("expected a queue size of 0 but received %d", size)
+	}
 }
 
+func TestGetSeasons(t *testing.T)            {}
 func TestGetTelemetry(t *testing.T)          {}
 func TestReadTelemetryFromFile(t *testing.T) {}
 
@@ -101,9 +107,13 @@ func TestReadTelemetryFromFile(t *testing.T) {}
 func TestGetQueueSize(t *testing.T) {}
 
 func setup() {
-	b, _ := ioutil.ReadFile("testdata/conf.js")
+	b, _ := ioutil.ReadFile("conf.json")
 	var conf Conf
 	json.Unmarshal(b, &conf)
-	session, _ = pubgo.New(conf.Key, conf.RateLimit)
+	var err error
+	session, err = New(conf.Key, conf.RateLimit)
+	if err != nil {
+		panic("Error creating API Client")
+	}
 }
 func teardown() {}

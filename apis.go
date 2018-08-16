@@ -13,9 +13,10 @@ const (
 	base    = "https://api.playbattlegrounds.com" // base URL for making API calls
 	shards  = "/shards/"                          // shards path segment
 	matches = "/matches/"                         // matches end point
-	players = "/players"                          //players end point
-	status  = "/status"                           // status end point
-	seasons = "/seasons"                          // seasons end point
+	samples = "/samples"
+	players = "/players" // players end point
+	status  = "/status"  // status end point
+	seasons = "/seasons" // seasons end point
 
 	// XboxAsia - Xbox Asia Region
 	XboxAsia = "xbox-as"
@@ -155,12 +156,32 @@ func (s *Session) GetSeasonStats(playerid, shard, season string, clbk func(Playe
 	return s.GetQueueSize()
 }
 
+// GetSampleMatches retrieves the sample matches data then passes the SamplesResponse into the given callback.
+// Upon retrieval of data the callback passed in is executed. Additionally the size of the
+// poller buffer is returned.
+func (s *Session) GetSampleMatches(shard string, clbk func(SamplesResponse, error)) (size int) {
+	req, _ := http.NewRequest("GET", base+shards+shard+samples, nil)
+	req.Header.Set("Authorization", s.apiKey)
+	req.Header.Set("Accept", "application/vnd.api+json")
+	s.poller.Request(req, func(res *http.Response, err error) {
+		var sr SamplesResponse
+		if err != nil {
+			clbk(sr, err)
+			return
+		}
+		var buffer bytes.Buffer
+		buffer.ReadFrom(res.Body)
+		err = json.Unmarshal(buffer.Bytes(), &sr)
+		clbk(sr, err)
+	})
+	return s.GetQueueSize()
+}
+
 // GetMatch retrieves the match data for a specified match id and passes the MatchResponse into the given callback.
 // Upon retrieval of data the callback passed in is executed. Additionally the size of the
 // poller buffer is returned.
-func (s *Session) GetMatch(id string, clbk func(MatchResponse, error)) (size int) {
-	//TODO: Verify this is the correct URI
-	req, _ := http.NewRequest("GET", base+shards+matches+id, nil)
+func (s *Session) GetMatch(id string, shard string, clbk func(MatchResponse, error)) (size int) {
+	req, _ := http.NewRequest("GET", base+shards+shard+matches+id, nil)
 	req.Header.Set("Authorization", s.apiKey)
 	req.Header.Set("Accept", "application/vnd.api+json")
 	s.poller.Request(req, func(res *http.Response, err error) {
