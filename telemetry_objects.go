@@ -58,7 +58,7 @@ type ItemPackage struct {
 
 // Common data for telemetry events
 type Common struct {
-	// MatchID string  `json:"matchId"`
-	// MapName string  `json:"mapName"`
-	IsGame float32 `json:"isGame"`
+	MatchID string  `json:"matchId"`
+	MapName string  `json:"mapName"`
+	IsGame  float32 `json:"isGame"`
 }
