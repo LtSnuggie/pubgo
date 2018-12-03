@@ -197,6 +197,8 @@ type MatchResponse struct {
 			Description  string    `json:"description"`
 			Name         string    `json:"name"`
 			URL          string    `json:"URL"`
+			SeasonState  string    `json:"seasonState"`
+			CustomMatch  bool      `json:"isCustomMatch"`
 		} `json:"attributes"`
 		Relationships struct {
 			Assets struct {
