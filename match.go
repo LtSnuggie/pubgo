@@ -1,5 +1,17 @@
 package pubgo
 
+import "time"
+
+// GetStatsByName is a helper function to retrieve player MatchStats
+// from a MatchResponse.
+func (mr *MatchResponse) GetStats() (s []MatchStats) {
+	s = make([]MatchStats, 0)
+	for _, p := range mr.Participants {
+		s = append(s, p.Attributes.Stats)
+	}
+	return
+}
+
 // GetStatsByName is a helper function to retrieve player MatchStats
 // from a MatchResponse. A map is more performant than a slice in
 // larger data sets so it is recommended to use this map instead of
@@ -26,6 +38,30 @@ func (mr *MatchResponse) GetStatsByWinRank() (s map[int][]*MatchStats) {
 		// s[p.Attributes.Stats.Name] = &p.Attributes.Stats
 	}
 	return
+}
+
+func (mr *MatchResponse) GetGameMode() (gm string) {
+	return mr.Data.Attributes.GameMode
+}
+
+func (mr *MatchResponse) GetMapName() (mp string) {
+	return mr.Data.Attributes.MapName
+}
+
+func (mr *MatchResponse) GetCustomMatch() (custom bool) {
+	return mr.Data.Attributes.CustomMatch
+}
+
+func (mr *MatchResponse) GetCreatedAt() (d time.Time) {
+	return mr.Data.Attributes.CreatedAt
+}
+
+func (mr *MatchResponse) GetSeasonState() (ss string) {
+	return mr.Data.Attributes.SeasonState
+}
+
+func (mr *MatchResponse) GetShardID() (id string) {
+	return mr.Data.Attributes.ShardID
 }
 
 func (mr *MatchResponse) GetMatchID() (id string) {
