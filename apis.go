@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	base    = "https://api.playbattlegrounds.com" // base URL for making API calls
-	shards  = "/shards/"                          // shards path segment
-	matches = "/matches/"                         // matches end point
+	base    = "https://api.pubg.com" // base URL for making API calls
+	shards  = "/shards/"             // shards path segment
+	matches = "/matches/"            // matches end point
 	samples = "/samples"
 	players = "/players" // players end point
 	status  = "/status"  // status end point
